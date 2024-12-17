@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: [ lint, test ]
-    # if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     env:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
