@@ -242,7 +242,7 @@ pull: ##@Git Pull from origin
 git: check commit ##@Git Check and commit
 
 .PHONY: update
-update: pull db wait-db-ready dump-local docker-build ##@Application Update docker app
+update: db wait-db-ready dump-local docker-build ##@Application Update docker app
 	@make docker-stop
 	@make delete-container-data
 	@make docker
@@ -476,7 +476,7 @@ wait-db-ready: ##@Application Wait for postgres to be ready
 	max_attempts=30; \
 	while ! $(DOCKER_COMPOSE) exec postgres pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB) > /dev/null 2>&1; do \
 		if [ $$attempts -ge $$max_attempts ]; then \
-			@echo "Postgres is not ready after $$max_attempts attempts. Exiting."; \
+			echo "Postgres is not ready after $$max_attempts attempts. Exiting."; \
 			exit 1; \
 		fi; \
 		echo "Postgres is not ready yet. Waiting... ($$attempts/$$max_attempts)"; \
