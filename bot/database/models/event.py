@@ -20,6 +20,7 @@ class Event(BaseModel):
         'name',
         sa.String,
         nullable=False,
+        index=False,
     )
     time: orm.Mapped[datetime.datetime] = sa.Column(
         'time',
