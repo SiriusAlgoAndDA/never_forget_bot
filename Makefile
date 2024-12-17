@@ -462,7 +462,7 @@ docker-prune-cache: ##@Docker Prune docker cache
 	$(DOCKER) builder prune --filter until=24h -f
 
 .PHONY: open-pg
-open-pg-env: ##@Database open psql in docker database
+open-pg: ##@Database open psql in docker database
 	$(DOCKER) exec -it postgres psql -d $(POSTGRES_DB) -U $(POSTGRES_USER)
 
 .PHONY: get-pg-use-port
