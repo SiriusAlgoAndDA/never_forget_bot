@@ -1,0 +1,103 @@
+stages:
+  - build
+  - check
+  - notify_ci_success
+  - deploy
+  - notify
+
+
+variables:
+  TAG_LATEST: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
+  TAG_COMMIT: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+  PYTHON_IMAGE: python:3.12
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  REPO_NAME: $CI_PROJECT_NAME
+  REPO_URL: $CI_PROJECT_URL
+  REPO_BRANCH: $CI_COMMIT_REF_NAME
+  CODE_FOLDER: $REPO_NAME
+
+
+build:
+  image: $PYTHON_IMAGE
+  stage: build
+  artifacts:
+    paths:
+      - .cache/pip
+      - .venv/
+    expire_in: 2 hrs
+  script:
+    - make venv
+    - make install
+
+
+lint:
+  image: $PYTHON_IMAGE
+  stage: check
+  script:
+    - make lint
+
+
+test:
+  image: $PYTHON_IMAGE
+  stage: check
+  variables:
+    POSTGRES_DB: data
+    POSTGRES_USER: pguser
+    POSTGRES_PASSWORD: pgpswd
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: 5432
+  services:
+    - name: postgres:14.5
+  script:
+    - POSTGRES_HOST=postgres make test-mp
+
+
+notify_ci_success:
+  image: ubuntu:20.04
+  stage: notify_ci_success
+  script:
+    - sh ./ci/notify.sh "CI/CD success ✅"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+
+
+.deploy_template_master:
+  image: ubuntu:20.04
+  stage: deploy
+  before_script:
+    - sh ./ci/notify.sh "Starting deploy in ${CI_ENVIRONMENT_SLUG}"
+  script:
+    - sh ./ci/deploy.sh
+    - sh ./ci/notify.sh "Deploy in ${CI_ENVIRONMENT_SLUG} success ✅"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+
+deploy-dev:
+  extends: .deploy_template_master
+  environment:
+    name: development
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_REF_NAME == "dev"'
+    - when: manual
+      allow_failure: true
+
+deploy-prod:
+  extends: .deploy_template_master
+  environment:
+    name: production
+
+
+notify_error:
+  image: ubuntu:20.04
+  stage: notify
+  script:
+    - sh ./ci/notify.sh "CI/CD failed ❌"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - when: on_failure

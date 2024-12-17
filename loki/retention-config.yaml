@@ -1,0 +1,55 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_server_max_recv_msg_size: 6000000
+  grpc_server_max_send_msg_size: 6000000
+
+query_scheduler:
+  max_outstanding_requests_per_tenant: 4096
+frontend:
+  max_outstanding_per_tenant: 4096
+query_range:
+  parallelise_shardable_queries: trues
+
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  max_query_length: 0
+  ingestion_rate_mb: 60
+  ingestion_burst_size_mb: 85
+  split_queries_by_interval: 15m
+  max_query_parallelism: 32
+
+ruler:
+  alertmanager_url: http://localhost:9093
+
+# Отличие от стандарного конфигурационного файла loki, который идет из коробки
+# заключается в строках ниже. Здесь мы указываем для менеджера по умолчанию,
+# что он может удалять старые логи, а также, что в нашем понимании "старые логи"
+# (те которые старше 168 часов).
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 168h
+
+analytics:
+  reporting_enabled: false
