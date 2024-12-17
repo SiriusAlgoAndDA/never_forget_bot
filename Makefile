@@ -242,7 +242,7 @@ pull: ##@Git Pull from origin
 git: check commit ##@Git Check and commit
 
 .PHONY: update
-update: pull db wait-db-ready dump-local docker-build ##@Application Update docker app
+update: db wait-db-ready dump-local docker-build ##@Application Update docker app
 	@make docker-stop
 	@make delete-container-data
 	@make docker
