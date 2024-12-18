@@ -164,6 +164,8 @@ services:
     image: postgres:${TEMPORAL_POSTGRESQL_VERSION}
     networks:
       - temporal-network
+    ports:
+      - 5433:5432
     expose:
       - 5433
     volumes:
