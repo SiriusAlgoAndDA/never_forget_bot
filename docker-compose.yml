@@ -177,7 +177,7 @@ services:
       - elasticsearch
     environment:
       - DB=postgres12
-      - DB_PORT=5433
+      - DB_PORT=5432
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal
       - POSTGRES_SEEDS=postgresql
