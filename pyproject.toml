@@ -17,6 +17,7 @@ loki-logger-handler = "^1.0.2"
 aiogram = "^3.15.0"
 pydantic-settings = "^2.7.0"
 python-dateutil = "^2.9.0.post0"
+httpx = "^0.28.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -118,6 +119,9 @@ max-statements=30
 max-attributes=10
 # Maximum number of public methods for a class (see R0904).
 max-public-methods=10
+# R0917
+max-positional-arguments=10
+
 
 [tool.pylint.format]
 max-line-length = 120
