@@ -89,7 +89,7 @@ up: ##@Application Up Bot
 
 .PHONY: up-scheduler
 up-scheduler: ##@Scheduler Up
-	$(POETRY_RUN) python -m temporal
+	$(POETRY_RUN) python -m bot/temporal
 
 .PHONY: migrate
 migrate:  ##@Database Do all migrations in database
