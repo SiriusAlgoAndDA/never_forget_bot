@@ -11,7 +11,7 @@ ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no $SSH_USERNAME@
   cd $CODE_FOLDER;
   tar -xzf $CODE_FOLDER.tar.gz
   echo \"$ENV\" > .env;
-  echo \"$YANDEX_CLOUD_API_KEY\" > .yandex_cloud_private_key;
+  echo \"$YANDEX_CLOUD_PRIVATE_KEY\" > .yandex_cloud_private_key;
   make docker-stop postgres || echo \"Postgres not run\";
   make update;
   exit"
