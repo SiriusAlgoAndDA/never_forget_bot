@@ -6,7 +6,7 @@ from .send_notify import send_reminder, ReminderWorkflow
 
 async def main():
     # Подключение к Temporal серверу
-    client = await Client.connect("localhost:7233")
+    client = await Client.connect("temporal:7233")
 
     # Запуск воркера
     async with Worker(
@@ -16,24 +16,6 @@ async def main():
         activities=[send_reminder],
     ):
         print("Worker запущен и ожидает задачи...")
-
-        # Указываем имя и timestamp (UNIX time), когда должно быть отправлено сообщение
-        text = "Погулять с собакой"
-        send_timestamp = int(
-            1734507300
-        )
-
-        # Запуск Workflow с указанным временем
-        await client.start_workflow(
-            ReminderWorkflow.run,
-            text,
-            send_timestamp,
-            id="reminder-timestamp-workflow-id",
-            task_queue="reminder-timestamp-task-queue",
-        )
-
-        print("Workflow запущен. Ждём выполнения...")
-
         # Чтобы worker не останавливался
         await asyncio.Future()
 

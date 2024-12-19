@@ -22,6 +22,7 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+      - temporal-network
 
   scheduler:
     container_name: scheduler
