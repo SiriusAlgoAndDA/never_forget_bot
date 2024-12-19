@@ -3,7 +3,7 @@ import datetime
 import aiogram
 from aiogram import filters, types
 
-from bot.temporal.ReminderWorkflow import new_event
+from bot.temporal.reminder_workflow import new_event
 
 
 router = aiogram.Router()

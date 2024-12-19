@@ -3,7 +3,7 @@ import asyncio
 from temporalio.client import Client
 from temporalio.worker import Worker
 
-from .ReminderWorkflow import ReminderWorkflow, send_reminder
+from .reminder_workflow import ReminderWorkflow, send_reminder
 
 
 async def main() -> None:
@@ -13,7 +13,7 @@ async def main() -> None:
     # Запуск воркера
     async with Worker(
         client,
-        task_queue='reminder-timestamp-task-queue',
+        task_queue='reminder-workflow-task-queue',
         workflows=[ReminderWorkflow],
         activities=[send_reminder],
     ):

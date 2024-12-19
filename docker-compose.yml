@@ -180,12 +180,12 @@ services:
       - postgresql
       - elasticsearch
     environment:
-      - DB=postgres12
       - ENABLE_ES=true
       - ES_SEEDS=elasticsearch
       - DB_PORT=5432
       - POSTGRES_SEEDS=postgresql
       - ES_VERSION=v7
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
     image: temporalio/auto-setup:1.25.2
     networks:
       - temporal-network
