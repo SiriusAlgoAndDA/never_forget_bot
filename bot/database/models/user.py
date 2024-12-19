@@ -31,6 +31,16 @@ class User(BaseModel):
         index=False,
         doc='Telegram name of user.',
     )
+    timezone: orm.Mapped[float] = sa.Column(
+        'timezone',
+        sa.Float,
+        nullable=False,
+        unique=False,
+        index=False,
+        default=3,
+        server_default='3',
+        doc='Timezone of user. (e.g. 3, -11, 5.5)'
+    )
 
     def __repr__(self):  # type: ignore
         return f'<User {self.tg_id}>'

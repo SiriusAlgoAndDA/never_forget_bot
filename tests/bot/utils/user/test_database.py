@@ -1,4 +1,4 @@
-from bot.utils.user import database
+from bot.utils.user_utils import database
 
 
 async def test_get_user(session):
