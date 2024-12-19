@@ -141,6 +141,8 @@ services:
       - app_network
 
   elasticsearch:
+    env_file:
+      - .temporal.env
     container_name: temporal-elasticsearch
     environment:
       - cluster.routing.allocation.disk.threshold_enabled=true
@@ -150,7 +152,7 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
       - xpack.security.enabled=false
-    image: elasticsearch:${ELASTICSEARCH_VERSION}
+    image: elasticsearch:7.16.2
     networks:
       - temporal-network
     expose:
@@ -159,10 +161,9 @@ services:
       - /var/lib/elasticsearch/data
   postgresql:
     container_name: temporal-postgresql
-    environment:
-      POSTGRES_PASSWORD: temporal
-      POSTGRES_USER: temporal
-    image: postgres:${TEMPORAL_POSTGRESQL_VERSION}
+    env_file:
+      - .temporal.env
+    image: postgres:13
     networks:
       - temporal-network
     ports:
@@ -173,20 +174,19 @@ services:
       - /var/lib/postgresql/data
   temporal:
     container_name: temporal
+    env_file:
+      - .temporal.env
     depends_on:
       - postgresql
       - elasticsearch
     environment:
       - DB=postgres12
-      - DB_PORT=5432
-      - POSTGRES_USER=temporal
-      - POSTGRES_PWD=temporal
-      - POSTGRES_SEEDS=postgresql
-      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
       - ENABLE_ES=true
       - ES_SEEDS=elasticsearch
+      - DB_PORT=5432
+      - POSTGRES_SEEDS=postgresql
       - ES_VERSION=v7
-    image: temporalio/auto-setup:${TEMPORAL_VERSION}
+    image: temporalio/auto-setup:1.25.2
     networks:
       - temporal-network
     ports:
@@ -194,25 +194,29 @@ services:
     volumes:
       - ./temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
   temporal-admin-tools:
+    env_file:
+      - .temporal.env
     container_name: temporal-admin-tools
     depends_on:
       - temporal
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_CLI_ADDRESS=temporal:7233
-    image: temporalio/admin-tools:${TEMPORAL_ADMINTOOLS_VERSION}
+    image: temporalio/admin-tools:1.25.2-tctl-1.18.1-cli-1.1.1
     networks:
       - temporal-network
     stdin_open: true
     tty: true
   temporal-ui:
+    env_file:
+      - .temporal.env
     container_name: temporal-ui
     depends_on:
       - temporal
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_CORS_ORIGINS=http://localhost:3010
-    image: temporalio/ui:${TEMPORAL_UI_VERSION}
+    image: temporalio/ui:2.31.2
     networks:
       - temporal-network
     ports:

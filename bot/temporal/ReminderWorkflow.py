@@ -54,7 +54,7 @@ async def new_event(chat_id: int, event: str, timestamp: float) -> bool:
         'reminder-workflow',
         Reminderdata(chat_id, event),
         id='reminder-' + str(uuid.uuid4()),
-        task_queue='reminder-timestamp-task-queue',
+        task_queue='reminder-workflow-task-queue',
         start_delay=time_delta,
     )
     return True
