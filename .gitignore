@@ -126,3 +126,5 @@ deploy/*
 
 logs/*
 !logs/README.md
+
+.yandex_cloud_private_key

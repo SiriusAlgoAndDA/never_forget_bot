@@ -19,8 +19,11 @@ async def send_message(message: str, level: str = 'error', chat_id: str | None =
             )
             message = message[4000:]
         except TelegramBadRequest as e:
-            tag_msg = "Can't parse entities: can't find end tag corresponding to start tag code"
-            if str(e) == tag_msg or str(e) == f'Telegram server says - {tag_msg}':
+            if (
+                str(e) == "Telegram server says - Bad Request: can't "
+                "parse entities: Can't find end tag "
+                'corresponding to start tag "code"'
+            ):
                 await bot.bot.send_message(
                     chat_id=chat_id,
                     text=message[:4000] + '</code>',
