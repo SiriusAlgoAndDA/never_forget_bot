@@ -107,6 +107,8 @@ jobs:
       SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
       SSH_HOST: ${{ secrets.SSH_ADDRESS }}
       ENV: ${{ secrets.ENV }}
+      TEMPORAL_ENV: ${{ secrets.TEMPORAL_ENV }}
+      YANDEX_CLOUD_PRIVATE_KEY: ${{ secrets.YANDEX_CLOUD_PRIVATE_KEY }}
       GITHUB_REPO: ${{ github.repository }}
       CI_ENVIRONMENT_NAME: ${{ github.ref }}
       CODE_FOLDER: ${{ github.event.repository.name }}

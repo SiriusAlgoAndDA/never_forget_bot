@@ -159,6 +159,7 @@ services:
       - 9200
     volumes:
       - /var/lib/elasticsearch/data
+
   postgresql:
     container_name: temporal-postgresql
     env_file:
@@ -172,6 +173,7 @@ services:
       - 5433
     volumes:
       - /var/lib/postgresql/data
+
   temporal:
     container_name: temporal
     env_file:
@@ -180,6 +182,7 @@ services:
       - postgresql
       - elasticsearch
     environment:
+      - DB=postgres12
       - ENABLE_ES=true
       - ES_SEEDS=elasticsearch
       - DB_PORT=5432
@@ -193,6 +196,7 @@ services:
       - 7233:7233
     volumes:
       - ./temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
+
   temporal-admin-tools:
     env_file:
       - .temporal.env
@@ -207,6 +211,7 @@ services:
       - temporal-network
     stdin_open: true
     tty: true
+
   temporal-ui:
     env_file:
       - .temporal.env
