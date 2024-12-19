@@ -87,6 +87,10 @@ poetry-add: ##@Code Add new dependency
 up: ##@Application Up Bot
 	$(POETRY_RUN) python -m bot
 
+.PHONY: up-scheduler
+up-scheduler: ##@Scheduler Up
+	$(POETRY_RUN) python -m bot.temporal
+
 .PHONY: migrate
 migrate:  ##@Database Do all migrations in database
 	$(POETRY_RUN) alembic upgrade $(args)

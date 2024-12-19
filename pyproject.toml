@@ -18,6 +18,7 @@ aiogram = "^3.15.0"
 pydantic-settings = "^2.7.0"
 python-dateutil = "^2.9.0.post0"
 httpx = "^0.28.1"
+temporalio = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
