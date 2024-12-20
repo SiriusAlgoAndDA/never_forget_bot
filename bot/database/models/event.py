@@ -28,7 +28,11 @@ class Event(BaseModel):
     )
 
     reschedule_timedelta: orm.Mapped[datetime.timedelta] = sa.Column(
-        'reschedule_timedelta', sa.Interval, nullable=True, doc='Интервал для пересчёта (timedelta)'
+        'reschedule_timedelta',
+        sa.Interval,
+        default=datetime.timedelta(minutes=10),
+        nullable=True,
+        doc='Интервал для пересчёта (timedelta)',
     )
 
     user_id: orm.Mapped[uuid.UUID] = sa.Column(  # type: ignore

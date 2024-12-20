@@ -3,7 +3,7 @@ import asyncio
 from temporalio.client import Client
 from temporalio.worker import Worker
 
-from .reminder_workflow import ReminderWorkflow, send_reminder
+from .notify_workflow import NotificationWorkflow, add_new_workflow, send_notify, update_db
 
 
 async def main() -> None:
@@ -14,8 +14,8 @@ async def main() -> None:
     async with Worker(
         client,
         task_queue='reminder-workflow-task-queue',
-        workflows=[ReminderWorkflow],
-        activities=[send_reminder],
+        workflows=[NotificationWorkflow],
+        activities=[send_notify, update_db, add_new_workflow],
     ):
         print('Worker запущен и ожидает задачи...')
         # Чтобы worker не останавливался
