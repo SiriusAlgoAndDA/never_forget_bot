@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database import models
@@ -14,3 +14,8 @@ async def add_user(session: AsyncSession, tg_id: str, tg_username: str, tg_name:
     session.add(user)
     await session.commit()
     return user
+
+
+async def change_timezone(session: AsyncSession, tg_id: str, new_timezone: float) -> None:
+    query = update(models.User).where(models.User.tg_id == tg_id).values(timezone=new_timezone)
+    await session.execute(query)
