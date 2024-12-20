@@ -2,6 +2,7 @@ import json
 
 import aiogram
 from aiogram import F, types
+from aiogram.filters import StateFilter
 
 from bot.database import models
 from bot.middlewares.check_user import CheckUserMiddleware
@@ -12,7 +13,7 @@ router = aiogram.Router()
 router.message.middleware(CheckUserMiddleware())
 
 
-@router.message(F.text)
+@router.message(F.text, StateFilter(None), ~F.text.startswith('/'))
 async def message_for_user(message: types.Message, user: models.User) -> None:
     if not message.text:
         raise RuntimeError('No text')

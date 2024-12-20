@@ -2,6 +2,7 @@ import json
 
 import aiogram
 from aiogram import F, types
+from aiogram.filters import StateFilter
 
 from bot.database import models
 from bot.middlewares.check_user import CheckUserMiddleware
@@ -14,7 +15,7 @@ router = aiogram.Router()
 router.message.middleware(CheckUserMiddleware())
 
 
-@router.message(F.voice)
+@router.message(StateFilter(None), F.voice)
 async def voice_message(message: types.Message, user: models.User) -> None:
     if not message.voice or not message.bot:
         raise RuntimeError('No voice or bot')
