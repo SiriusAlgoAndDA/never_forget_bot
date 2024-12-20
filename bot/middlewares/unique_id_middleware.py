@@ -33,5 +33,5 @@ class UniqueIDMiddleware(aiogram.BaseMiddleware):
             raise exc
         finally:
             with loguru.logger.contextualize(**log_extra):
-                loguru.logger.info('Got response', log_type='response')
+                loguru.logger.info('Got telegram response', log_type='response')
         return result
