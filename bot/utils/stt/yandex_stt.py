@@ -15,11 +15,13 @@ async def speech_request(file: BinaryIO) -> str:
         url=f'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?{params}',
         logger=loguru.logger,
         method='POST',
-        data=file,
+        data=file.read(),
         custom_headers={'Authorization': f'Bearer {token}'},
+        content_type=None,
     )
-    decoded_data = response.json()['result']
+    if response.status_code != 200:
+        raise RuntimeError(f'Got {response.status_code} status code: {response.text}')
+    decoded_data = response.json()
     if decoded_data.get('error_code') is None:
         return decoded_data.get('result')
-    else:
-        raise RuntimeError()
+    raise RuntimeError(decoded_data.get('error_code'))
