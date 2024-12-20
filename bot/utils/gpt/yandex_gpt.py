@@ -50,7 +50,7 @@ async def request_to_gpt(message: Message, user: models.User) -> str:
         'messages': [
             {
                 'role': 'system',
-                'text': text_promt.format(cur_time = user_time),
+                'text': text_promt.format(cur_time=user_time),
             },
             {'role': 'user', 'text': message.text},
         ],

@@ -18,12 +18,15 @@ async def make_request(  # pylint: disable=too-many-arguments,too-many-statement
     custom_headers = custom_headers or {}
     while retry_count > 0:
         async with httpx.AsyncClient() as client:
+            log_data = str(data)
+            if len(log_data) > 128:
+                log_data = log_data[:128] + '... (truncated)'
             logger.info(
-                'Making request: {} {} (timeout: {}, data: {})',
+                'Making request: {} {} (timeout: {}})',
                 method,
                 url,
                 timeout,
-                data,
+                body=log_data,
             )  # TODO: hide data (token, password)
 
             client.headers.update({**custom_headers})
