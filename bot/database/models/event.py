@@ -10,6 +10,13 @@ from .base import BaseModel
 class Event(BaseModel):
     __tablename__ = 'event'
 
+    type: orm.Mapped[str] = sa.Column(
+        'type',
+        sa.String,
+        nullable=False,
+        index=True,
+    )
+
     name: orm.Mapped[str] = sa.Column('name', sa.String, nullable=False, index=False, doc='Само событие')
 
     status: orm.Mapped[str] = sa.Column(
