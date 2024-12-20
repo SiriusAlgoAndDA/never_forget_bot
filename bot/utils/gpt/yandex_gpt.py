@@ -6,7 +6,7 @@ from bot.utils import external_request, user_utils
 from bot.utils.common import yandex_utils
 
 
-async def request_to_gpt(text: str, user: models.User) -> str:
+async def request_to_gpt(text: str, user: models.User, iam_token: str | None = None) -> str:
     user_time = await user_utils.current_time(user)
     with open('promt.txt', 'r', encoding='utf-8') as f:
         text_promt = f.read()
@@ -22,7 +22,7 @@ async def request_to_gpt(text: str, user: models.User) -> str:
         ],
     }
 
-    token = await yandex_utils.get_iam_token()
+    token = iam_token or await yandex_utils.get_iam_token()
     response = await external_request.make_request(
         url='https://llm.api.cloud.yandex.net/foundationModels/v1/completion',
         logger=loguru.logger,

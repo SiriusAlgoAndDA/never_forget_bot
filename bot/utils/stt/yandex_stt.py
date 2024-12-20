@@ -7,16 +7,16 @@ from bot.utils.common import yandex_utils
 from bot.utils.external_request.service import make_request
 
 
-async def speech_request(file: BinaryIO) -> str:
+async def speech_request(file: BinaryIO, iam_token: str | None = None) -> str:
     catalog_id = config.get_settings().YANDEX_CLOUD_CATALOG_ID
-    token = await yandex_utils.get_iam_token()
+    iam_token = iam_token or await yandex_utils.get_iam_token()
     params = '&'.join(['topic=general', f'folderId={catalog_id}', 'lang=ru-RU'])
     response = await make_request(
         url=f'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?{params}',
         logger=loguru.logger,
         method='POST',
         data=file.read(),
-        custom_headers={'Authorization': f'Bearer {token}'},
+        custom_headers={'Authorization': f'Bearer {iam_token}'},
         content_type=None,
     )
     if response.status_code != 200:
