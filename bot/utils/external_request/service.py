@@ -22,7 +22,7 @@ async def make_request(  # pylint: disable=too-many-arguments,too-many-statement
             if len(log_data) > 128:
                 log_data = log_data[:128] + '... (truncated)'
             logger.info(
-                'Making request: {} {} (timeout: {}})',
+                'Making request: {} {} (timeout: {})',
                 method,
                 url,
                 timeout,
