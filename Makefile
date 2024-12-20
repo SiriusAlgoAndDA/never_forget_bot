@@ -57,6 +57,7 @@ help: ##@Help Show this help
 env:  ##@Environment Create .env file with variables
 	@$(eval SHELL:=/bin/bash)
 	@cp .env.example .env
+	@cp .temporal.env.example .temporal.env
 
 
 .PHONY: venv

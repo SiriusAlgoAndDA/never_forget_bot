@@ -39,6 +39,7 @@ RUN make install-prod
 COPY setup.cfg setup.cfg
 COPY alembic.ini alembic.ini
 COPY log.ini log.ini
+COPY .yandex_cloud_private_key .yandex_cloud_private_key
 
 COPY bot bot
 

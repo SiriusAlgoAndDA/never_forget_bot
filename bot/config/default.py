@@ -48,6 +48,11 @@ class DefaultSettings(pydantic_settings.BaseSettings):
         'http://loki:3100/loki/api/v1/push',
     )
 
+    YANDEX_CLOUD_PRIVATE_KEY_FILE: str = pydantic.Field('')
+    YANDEX_CLOUD_KEY_ID: str = pydantic.Field('')
+    YANDEX_CLOUD_SERVICE_ACCOUNT_ID: str = pydantic.Field('')
+    YANDEX_CLOUD_CATALOG_ID: str = pydantic.Field('')
+
     @property
     def database_settings(self) -> dict[str, str | int]:
         """
