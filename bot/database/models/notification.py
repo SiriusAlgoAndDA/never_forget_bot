@@ -10,6 +10,8 @@ from .base import BaseModel
 class Notification(BaseModel):
     __tablename__ = 'notification'
 
+    type: orm.Mapped[str] = sa.Column('type', sa.String, nullable=False, index=True, doc='Тип события')
+
     event_id: orm.Mapped[uuid.UUID] = sa.Column(  # type: ignore
         'event_id',
         sa.UUID(as_uuid=True),
