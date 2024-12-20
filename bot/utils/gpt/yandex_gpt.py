@@ -42,7 +42,7 @@ async def get_iam_token() -> str:
 
 async def request_to_gpt(message: Message, user: models.User) -> str:
     user_time = await user_utils.current_time(user)
-    with open('promt.txt', 'r') as f:
+    with open('promt.txt', 'r', encoding='utf-8') as f:
         text_promt = f.read()
     promt = {
         'modelUri': f'gpt://{config.get_settings().YANDEX_CLOUD_CATALOG_ID}/yandexgpt/latest',
