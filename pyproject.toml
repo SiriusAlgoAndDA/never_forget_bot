@@ -21,6 +21,9 @@ httpx = "^0.28.1"
 temporalio = "^1.8.0"
 pyjwt = "^2.10.1"
 cryptography = "^44.0.0"
+timezonefinder = "^6.5.7"
+pytz = "^2024.2"
+pytimeparse = "^1.1.8"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -43,6 +46,7 @@ sqlalchemy-utils = "^0.41.2"
 factory-boy = "^3.3.1"
 types-python-dateutil = "^2.9.0.20241206"
 greenlet = "^3.1.1"
+types-pytz = "^2024.2.0.20241221"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -17,4 +17,4 @@ async def handler_start(message: types.Message, state: FSMContext) -> None:
     if message.from_user is None:
         raise RuntimeError('User is None')
     await new_event(message.from_user.id, 'Hello from Temporal!', send_timestamp)
-    await message.reply('Hello!')
+    await message.reply('Hello!', reply_markup=types.ReplyKeyboardRemove())
