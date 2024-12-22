@@ -51,6 +51,8 @@ async def send_notify(data: Notifydata) -> str | Notifydata:
 @activity.defn
 async def update_db(data: Notifydata) -> str | Notifydata:
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
+        if not data.sent_ts:
+            raise ValueError('No sent ts')
         notify = await update_notification_status(session, data.notify_id, NotificationStatus.SENT)
         notify = await update_sent_ts(session, data.notify_id, datetime.fromisoformat(data.sent_ts))
         if notify is None:
@@ -100,9 +102,9 @@ class NotificationWorkflow:
         update_db_result: str | Notifydata = await workflow.execute_activity(
             update_db, result, start_to_close_timeout=timedelta(seconds=30)
         )
-        workflow.logger.info('Update db\nNotify_old_id: %s \nNotify New ID', data.notify_id, update_db_result.notify_id)
         if isinstance(update_db_result, str):
             return
+        workflow.logger.info('Update db\nNotify_old_id: %s \nNotify New ID', data.notify_id, update_db_result.notify_id)
         result = await workflow.execute_activity(
             add_new_workflow, update_db_result, start_to_close_timeout=timedelta(seconds=30)
         )

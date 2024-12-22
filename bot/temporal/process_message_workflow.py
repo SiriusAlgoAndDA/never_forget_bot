@@ -1,3 +1,4 @@
+import typing
 import uuid
 from copy import deepcopy
 from dataclasses import dataclass
@@ -15,13 +16,13 @@ from bot.utils.notification_utils import add_notification
 
 @dataclass
 class MessageInfo:
-    gpt_json: dict
+    gpt_json: dict[str, typing.Any]
     message_text: str
     user_id: uuid.UUID
-    user_tz: int
+    user_tz: float
 
 
-def validate_json(info: MessageInfo) -> bool | dict:
+def validate_json(info: MessageInfo) -> bool | dict[str, typing.Any]:
     """{{
         "event": <event_name, str>,
         "date_of_event": <<time_of_event, hh:mm:ss> <date_of_event, dd.mm.yyyy>>,
@@ -53,7 +54,7 @@ def validate_json(info: MessageInfo) -> bool | dict:
     return data
 
 
-def AsIsJson(info: MessageInfo) -> dict:
+def AsIsJson(info: MessageInfo) -> dict[str, typing.Any]:
     data = {
         'event': info.message_text,
         'date_of_event': (datetime.now(timezone(timedelta(hours=info.user_tz))) + timedelta(hours=1)).isoformat(),
@@ -78,7 +79,7 @@ async def add_event_process(data: MessageInfo) -> Notifydata:
         return Notifydata(notify_id=notify.id)
 
 
-async def create_event(data: dict, message_text: str, user_id: uuid.UUID, user_tz: int):
+async def create_event(data: dict[str, typing.Any], message_text: str, user_id: uuid.UUID | str, user_tz: float):
     workflow_id = 'process-message-' + str(uuid.uuid4())
     client = await Client.connect('temporal:7233')
     await client.start_workflow(
@@ -95,7 +96,7 @@ class ProcessMessageWorkflow:
     async def run(self, data: MessageInfo) -> None:
         gpt_json = validate_json(data)
         workflow.logger.info('GPT JSON: %s\n', gpt_json)
-        if not gpt_json:
+        if isinstance(gpt_json, bool) and not gpt_json:
             data.gpt_json = AsIsJson(data)
         else:
             data.gpt_json = gpt_json
