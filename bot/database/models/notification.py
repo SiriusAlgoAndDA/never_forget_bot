@@ -23,7 +23,7 @@ class Notification(BaseModel):
         'notify_ts', sa.TIMESTAMP(timezone=True), nullable=False, doc='Время напоминания'
     )
 
-    sent_ts: orm.Mapped[datetime.datetime | None] = sa.Column(
+    sent_ts: orm.Mapped[datetime.datetime | None] = sa.Column(  # type: ignore[misc]
         'sent_ts', sa.TIMESTAMP(timezone=True), nullable=True, doc='Время последней отправки'
     )
 

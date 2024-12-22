@@ -34,6 +34,7 @@ class DefaultSettings(pydantic_settings.BaseSettings):
     )
     LOGGING_FILE_DIR: pathlib.Path = pathlib.Path('logs')
     LOGGING_BOT_FILE: pathlib.Path = LOGGING_FILE_DIR / 'logfile.log'
+    LOGGING_WORKER_FILE: pathlib.Path = LOGGING_FILE_DIR / 'worker_logfile.log'
 
     BASE_DIR: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent.parent
 

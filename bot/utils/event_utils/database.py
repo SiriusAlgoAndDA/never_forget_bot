@@ -20,7 +20,7 @@ async def get_event(session: AsyncSession, event_id: uuid.UUID | str) -> models.
     return await session.scalar(query)
 
 
-async def add_event(
+async def add_event(  # pylint: disable=too-many-arguments
     session: AsyncSession,
     event_type: str,
     name: str,

@@ -48,7 +48,7 @@ async def update_notification_status(
     return notification
 
 
-async def add_notification(
+async def add_notification(  # pylint: disable=too-many-arguments
     session: AsyncSession,
     event_id: uuid.UUID | str,
     notify_ts: datetime,

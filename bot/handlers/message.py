@@ -1,13 +1,10 @@
-import json
-
 import aiogram
 from aiogram import F, types
 from aiogram.filters import StateFilter
 
 from bot.database import models
 from bot.middlewares.check_user import CheckUserMiddleware
-from bot.temporal.process_message_workflow import create_event
-from bot.utils.gpt import yandex_gpt
+from bot.utils import event_utils
 
 
 router = aiogram.Router()
@@ -18,10 +15,7 @@ router.message.middleware(CheckUserMiddleware())
 async def message_for_user(message: types.Message, user: models.User) -> None:
     if not message.text:
         raise RuntimeError('No text')
-    data = await yandex_gpt.request_to_gpt(message.text, user)
-    try:
-        t = json.loads(data)
-        await message.reply(json.dumps(t, ensure_ascii=False))
-    except json.JSONDecodeError:
-        await message.reply('При обработке запроса произошла ошибка. Повторите запрос в ближайшее время')
-    await create_event(t, message.text, user.id, user.timezone)
+
+    await message.reply('Парсим текст...')
+    await event_utils.process_message(text=message.text, user=user)
+    await message.reply('Сообщение отправлено в обработку...')
