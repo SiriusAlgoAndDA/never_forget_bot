@@ -1,4 +1,5 @@
 import aiogram
+from aiogram import types
 from aiogram.fsm.storage import memory
 
 from bot import config, handlers, logger_config, middlewares
@@ -12,7 +13,7 @@ def bind_routers(dp: aiogram.Dispatcher) -> None:
         dp.include_router(router)
 
 
-def get_bot(set_up_logger: bool = True) -> tuple[aiogram.Bot, aiogram.Dispatcher]:
+async def get_bot(set_up_logger: bool = True) -> tuple[aiogram.Bot, aiogram.Dispatcher]:
     """
     Creates bot and all dependable objects.
     """
@@ -27,5 +28,13 @@ def get_bot(set_up_logger: bool = True) -> tuple[aiogram.Bot, aiogram.Dispatcher
 
     if set_up_logger:
         logger_config.configure_logger(settings, log_file=settings.LOGGING_BOT_FILE, application='bot')
+
+    await bot.set_my_commands(
+        commands=[
+            types.BotCommand(command='/start', description='d'),
+            types.BotCommand(command='/change_timezone', description='s'),
+            types.BotCommand(command='/show_events', description='a'),
+        ]
+    )
 
     return bot, dp
