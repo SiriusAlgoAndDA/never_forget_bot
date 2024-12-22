@@ -6,9 +6,9 @@ from aiogram.filters import StateFilter
 
 from bot.database import models
 from bot.middlewares.check_user import CheckUserMiddleware
+from bot.temporal.process_message_workflow import create_event
 from bot.utils.gpt import yandex_gpt
 
-from bot.temporal.process_message_workflow import create_event
 
 router = aiogram.Router()
 router.message.middleware(CheckUserMiddleware())

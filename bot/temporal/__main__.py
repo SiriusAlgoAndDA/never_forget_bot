@@ -5,6 +5,8 @@ from temporalio.worker import Worker
 
 from .notify_workflow import NotificationWorkflow, add_new_workflow, send_notify, update_db
 from .process_message_workflow import ProcessMessageWorkflow, add_event_process
+
+
 async def main() -> None:
     # Подключение к Temporal серверу
     client = await Client.connect('temporal:7233')

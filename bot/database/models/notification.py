@@ -9,8 +9,8 @@ from .base import BaseModel
 
 class Notification(BaseModel):
     __tablename__ = 'notification'
-    
-    event_id: orm.Mapped[uuid.UUID] = sa.Column(  # type: ignore
+
+    event_id: orm.Mapped[uuid.UUID | str] = sa.Column(  # type: ignore
         'event_id',
         sa.UUID(as_uuid=True),
         sa.ForeignKey('event.id'),

@@ -35,7 +35,7 @@ class Event(BaseModel):
         doc='Интервал для пересчёта (timedelta)',
     )
 
-    user_id: orm.Mapped[uuid.UUID] = sa.Column(  # type: ignore
+    user_id: orm.Mapped[uuid.UUID | str] = sa.Column(  # type: ignore
         'user_id',
         sa.UUID(as_uuid=True),
         sa.ForeignKey('user.id'),

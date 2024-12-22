@@ -15,7 +15,7 @@ class NotificationStatus(StrEnum):
     CANCELLED = 'cancelled'
 
 
-async def get_notification(session: AsyncSession, notification_id: uuid.UUID) -> models.Notification | None:
+async def get_notification(session: AsyncSession, notification_id: uuid.UUID | str) -> models.Notification | None:
     """
     Получить событие (Notification) по его ID.
 
@@ -28,7 +28,7 @@ async def get_notification(session: AsyncSession, notification_id: uuid.UUID) ->
 
 
 async def update_notification_status(
-    session: AsyncSession, notification_id: uuid.UUID, new_status: str
+    session: AsyncSession, notification_id: uuid.UUID | str, new_status: str
 ) -> models.Notification | None:
     """
     Обновить статус уведомления (Notification) по ID.
@@ -50,7 +50,7 @@ async def update_notification_status(
 
 async def add_notification(
     session: AsyncSession,
-    event_id: uuid.UUID,
+    event_id: uuid.UUID | str,
     notify_ts: datetime,
     workflow_id: str,
     status: str = 'pending',
@@ -68,7 +68,6 @@ async def add_notification(
     :return: Созданный объект Notification.
     """
     new_notification = models.Notification(
-        id=uuid.uuid4(),
         event_id=event_id,
         notify_ts=notify_ts,
         workflow_id=workflow_id,
@@ -83,7 +82,7 @@ async def add_notification(
 
 
 async def update_sent_ts(
-    session: AsyncSession, notification_id: uuid.UUID, new_sent_ts: datetime
+    session: AsyncSession, notification_id: uuid.UUID | str, new_sent_ts: datetime
 ) -> models.Notification | None:
     """
     Обновить статус уведомления (Notification) по ID.

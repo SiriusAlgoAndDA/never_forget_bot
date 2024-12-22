@@ -25,8 +25,8 @@ settings = config.get_settings()
 
 @dataclass
 class Notifydata:
-    notify_id: uuid.UUID
-    sent_ts: datetime | None = None
+    notify_id: uuid.UUID | str
+    sent_ts: str | None = None
 
 
 @activity.defn
@@ -76,8 +76,8 @@ async def add_new_workflow(data: Notifydata) -> str:
         workflow_id = notify.workflow_id
         client = await Client.connect('temporal:7233')
         send_delay = notify.notify_ts - utcnow()
-        if send_delay < timedelta(seconds = 0):
-            send_delay = timedelta(seconds= 0)
+        if send_delay < timedelta(seconds=0):
+            send_delay = timedelta(seconds=0)
         await client.start_workflow(
             'notification-workflow',
             Notifydata(notify.id),
@@ -95,11 +95,15 @@ class NotificationWorkflow:
         # Выполняем активити
         result = await workflow.execute_activity(send_notify, data, start_to_close_timeout=timedelta(seconds=30))
         workflow.logger.info('Sent message: %s\nNotify_id: %s', result, data.notify_id)
-        if result is str:
+        if isinstance(result, str):
             return
-        result: str | Notifydata = await workflow.execute_activity(update_db, result, start_to_close_timeout=timedelta(seconds=30))
-        workflow.logger.info('Update db\nNotify_old_id: %s \nNotify New ID', data.notify_id, result.notify_id)
-        if result is str:
+        update_db_result: str | Notifydata = await workflow.execute_activity(
+            update_db, result, start_to_close_timeout=timedelta(seconds=30)
+        )
+        workflow.logger.info('Update db\nNotify_old_id: %s \nNotify New ID', data.notify_id, update_db_result.notify_id)
+        if isinstance(update_db_result, str):
             return
-        result = await workflow.execute_activity(add_new_workflow, result, start_to_close_timeout=timedelta(seconds=30))
+        result = await workflow.execute_activity(
+            add_new_workflow, update_db_result, start_to_close_timeout=timedelta(seconds=30)
+        )
         workflow.logger.info('Worker add: ', result)

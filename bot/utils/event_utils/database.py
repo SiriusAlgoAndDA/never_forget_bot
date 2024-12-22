@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.database import models
 
 
-async def get_event(session: AsyncSession, event_id: uuid.UUID) -> models.Event | None:
+async def get_event(session: AsyncSession, event_id: uuid.UUID | str) -> models.Event | None:
     """
     Получить событие (Event) по его ID.
 
@@ -25,7 +25,7 @@ async def add_event(
     event_type: str,
     name: str,
     time: datetime,
-    user_id: uuid.UUID,
+    user_id: uuid.UUID | str,
     status: str = 'pending',
     reschedule_timedelta: timedelta = timedelta(minutes=10),
 ) -> models.Event:
@@ -64,7 +64,7 @@ class EventStatus(StrEnum):
     NOT_COMPLETED = 'not_completed'
 
 
-async def update_event_status(session: AsyncSession, event_id: uuid.UUID, new_status: str) -> models.Event | None:
+async def update_event_status(session: AsyncSession, event_id: uuid.UUID | str, new_status: str) -> models.Event | None:
     """
     Обновить статус события (Event) по его ID.
 
