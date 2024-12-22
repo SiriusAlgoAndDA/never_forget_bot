@@ -20,7 +20,7 @@ class UniqueIDMiddleware(aiogram.BaseMiddleware):
 
         try:
             with loguru.logger.contextualize(**log_extra):
-                loguru.logger.info('Got new event {}', event, log_type='request')
+                loguru.logger.info('Got new event', event=repr(event), log_type='request')
                 result = await handler(event, data)
         except Exception as exc:
             with loguru.logger.contextualize(**log_extra):

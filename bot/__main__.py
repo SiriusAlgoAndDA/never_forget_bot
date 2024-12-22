@@ -15,7 +15,7 @@ async def main() -> None:
         level='info',
     )
 
-    bot, dp = creator.get_bot()
+    bot, dp = await creator.get_bot()
     loguru.logger.info('Bot starting...')
     await dp.start_polling(bot)
 

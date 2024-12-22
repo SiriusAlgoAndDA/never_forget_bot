@@ -6,6 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from bot.database import models
 from bot.database.connection import SessionManager
+from bot.markups import cancel_markup
 from bot.middlewares.check_user import CheckUserMiddleware
 from bot.utils.user_utils import change_timezone
 
@@ -22,7 +23,8 @@ router.message.middleware(CheckUserMiddleware())
 async def change_timezone_tg(message: types.Message, user: models.User, state: FSMContext) -> None:
     await message.reply(
         f'Текущий часовой пояс: {user.timezone}\n'
-        f'Пришлите новый часовой пояс (целую и дробную части таймзоны следует разделять точкой)'
+        f'Пришлите новый часовой пояс (целую и дробную части таймзоны следует разделять точкой)',
+        reply_markup=cancel_markup.get_keyboard(),
     )
     await state.set_state(ChoosingTimezone.choosing_timezone)
 
