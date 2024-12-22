@@ -23,7 +23,7 @@ async def get_notification(session: AsyncSession, notification_id: uuid.UUID) ->
     :param notification_id: UUID события.
     :return: Объект Notification, если найден, или None.
     """
-    query = select(models.User).where(models.Notification.id == notification_id)
+    query = select(models.Notification).where(models.Notification.id == notification_id)
     return await session.scalar(query)
 
 

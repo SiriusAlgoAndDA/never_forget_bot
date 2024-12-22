@@ -16,7 +16,7 @@ async def get_event(session: AsyncSession, event_id: uuid.UUID) -> models.Event 
     :param event_id: UUID события.
     :return: Объект Event, если найден, или None.
     """
-    query = select(models.User).where(models.Event.id == event_id)
+    query = select(models.Event).where(models.Event.id == event_id)
     return await session.scalar(query)
 
 
