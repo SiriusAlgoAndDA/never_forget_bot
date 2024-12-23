@@ -2,6 +2,7 @@ import datetime
 
 import aiogram
 import loguru
+import pytimeparse
 from aiogram import F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -9,7 +10,7 @@ from aiogram.fsm.state import State, StatesGroup
 from bot.database.connection import SessionManager
 from bot.markups import cancel_markup, notify_markup
 from bot.schemas.event import event_schemas
-from bot.utils.event_utils.service import set_finish_status
+from bot.utils.event_utils.service import set_delay, set_finish_status
 
 
 router = aiogram.Router()
@@ -31,42 +32,34 @@ async def delay(
         raise RuntimeError('No message text')
 
     if callback_data.delay_time is None:
-        await callback.message.edit_text('Откладываем событие.\n\n' + callback.message.text)
+        await callback.message.edit_reply_markup()
         await callback.message.reply(
             'Пришлите на сколько отложить напоминание, например: 1min, 1h, 1d, 2w',
             reply_markup=cancel_markup.get_keyboard(),
         )
         await state.set_state(ChoosingDelayTime.choosing_delay_time)
+        await state.update_data(event_id=callback_data.event_id, msg_id=callback.message.message_id)
         await callback.answer()
         return
 
-    seconds_delta = 10  # TODO pytimeparse callback_data.delay_time
+    seconds_delta = pytimeparse.parse(callback_data.delay_time)
     delta = datetime.timedelta(seconds=seconds_delta)
-
-    # TODO run delay workflow:
-    # TODO check event pending status
-    # TODO cancel old notify workflow
-    # TODO set terminated notification status in db
-    # TODO add new notify workflow
-
-    await callback.message.edit_text(
-        f'Напомним о событии еще раз через {delta.total_seconds() / 60} минут.\n\n' + callback.message.text
+    await set_delay(
+        event_id=callback_data.event_id, delta=delta, tg_id=callback.from_user.id, msg_id=callback.message.message_id
     )
+
+    await callback.message.edit_reply_markup()
     await callback.answer()
 
 
 @router.message(ChoosingDelayTime.choosing_delay_time, F.text)
 async def delay_another(message: types.Message, state: FSMContext) -> None:
-    seconds_delta = 10  # TODO pytimeparse callback_data.delay_time
+    seconds_delta = pytimeparse.parse(message.text)
     delta = datetime.timedelta(seconds=seconds_delta)
+    state_data = await state.get_data()
+    event_id = state_data['event_id']
+    await set_delay(event_id=event_id, delta=delta, tg_id=message.from_user.id, msg_id=state_data['msg_id'])
 
-    # TODO run delay workflow:
-    # TODO check event pending status
-    # TODO cancel old notify workflow
-    # TODO set terminated notification status in db
-    # TODO add new notify workflow
-
-    await message.reply(f'Напомним о событии еще раз через {delta.total_seconds() / 60} минут')
     await state.clear()
 
 

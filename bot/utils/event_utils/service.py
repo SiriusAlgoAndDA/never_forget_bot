@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import timedelta
 
 import loguru
 import temporalio.client
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database import models
 from bot.database.connection import SessionManager
+from bot.schemas.event.set_delay_workflow.set_delay_workflow_schema import SetDelayInfo
 from bot.schemas.notification import notification_schemas
 from bot.schemas.process_message_workflow import process_message_workflow_schemas
 from bot.utils.event_utils.database import update_event_status
@@ -41,3 +43,16 @@ async def set_finish_status(session: AsyncSession, event_id: uuid.UUID | str, st
         notifications = await get_active_notification_by_event_id(session, event_id)
         for notify in notifications:
             await update_notification_status(session, notify.id, notification_schemas.NotificationStatus.CANCELLED)
+
+
+async def set_delay(event_id: uuid.UUID | str, delta: timedelta, tg_id: int, msg_id: int) -> None:
+    loguru.logger.info('Creating workflow')
+    workflow_id = 'process-delay-' + str(uuid.uuid4())
+    client = await temporalio.client.Client.connect('temporal:7233')
+    await client.start_workflow(
+        'process-delay-workflow',
+        SetDelayInfo(str(event_id), delta.total_seconds(), msg_id, tg_id),
+        id=workflow_id,
+        task_queue='reminder-workflow-task-queue',
+    )
+    loguru.logger.info('Workflow {} started', workflow_id)
