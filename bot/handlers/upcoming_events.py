@@ -1,3 +1,5 @@
+import datetime
+
 import aiogram
 from aiogram import filters, types
 from aiogram.fsm.context import FSMContext
@@ -25,10 +27,13 @@ async def upcoming_events(message: types.Message, user: models.User, state: FSMC
         )
 
     for row in data:
+        event_ts = row[2].astimezone(tz=datetime.timezone(datetime.timedelta(hours=user.timezone)))
+        next_notify_ts = row[3].astimezone(tz=datetime.timezone(datetime.timedelta(hours=user.timezone)))
+
         text = text_data.TextData.EVENT_INFO.format(
             name=row[1],
-            event_time=row[2].strftime('%H:%M:%S %d.%m.%Y'),
-            next_notify_time=row[3].strftime('%H:%M:%S %d.%m.%Y'),
+            event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
+            next_notify_time=next_notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
         )
         await message.reply(text=text, reply_markup=notify_markup.get_keyboard(event_id=row[0]))
 
