@@ -9,19 +9,15 @@ from temporalio.client import Client
 from bot import config
 from bot.database.connection import SessionManager
 from bot.markups import notify_markup
+from bot.schemas.event import event_schemas
+from bot.schemas.notification import notification_schemas
 from bot.schemas.notify_workflow import notify_workflow_schemas
 from bot.text import text_data
 from bot.utils import user_utils
 from bot.utils.common import datetime_utils
 from bot.utils.common.datetime_utils import utcnow
-from bot.utils.event_utils import EventStatus, get_event
-from bot.utils.notification_utils import (
-    NotificationStatus,
-    add_notification,
-    get_notification,
-    update_notification_status,
-    update_sent_ts,
-)
+from bot.utils.event_utils import get_event
+from bot.utils.notification_utils import add_notification, get_notification, update_notification_status, update_sent_ts
 
 
 settings = config.get_settings()
@@ -34,13 +30,13 @@ async def send_notify(data: notify_workflow_schemas.NotifyData) -> str | notify_
         notify = await get_notification(session, data.notify_id)
         if notify is None:
             return 'Notification is None'
-        if notify.status != NotificationStatus.PENDING:
+        if notify.status != notification_schemas.NotificationStatus.PENDING:
             return 'Notification Status is not pending'
         event = await get_event(session, notify.event_id)
         if event is None:
             return 'Event is None'
-        if event.status != EventStatus.PENDING:
-            await update_notification_status(session, notify.id, NotificationStatus.CANCELLED)
+        if event.status != event_schemas.EventStatus.PENDING:
+            await update_notification_status(session, notify.id, notification_schemas.NotificationStatus.CANCELLED)
             return 'Event is closed'
         user = await user_utils.get_user_by_id(session, event.user_id)
         if user is None:
@@ -71,7 +67,7 @@ async def send_notify(data: notify_workflow_schemas.NotifyData) -> str | notify_
 @activity.defn
 async def update_db(data: notify_workflow_schemas.NotifyDataSent) -> str | notify_workflow_schemas.NotifyData:
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
-        await update_notification_status(session, data.notify_id, NotificationStatus.SENT)
+        await update_notification_status(session, data.notify_id, notification_schemas.NotificationStatus.SENT)
         await update_sent_ts(session, data.notify_id, datetime.fromisoformat(data.sent_ts))
         notify = await get_notification(session, data.notify_id)
         if notify is None:

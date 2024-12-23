@@ -1,3 +1,4 @@
+# pylint: disable=unsubscriptable-object  # TODO
 import datetime
 import uuid
 
@@ -5,6 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 
 from .base import BaseModel
+from .user import User
 
 
 class Event(BaseModel):
@@ -36,10 +38,13 @@ class Event(BaseModel):
     )
 
     user_id: orm.Mapped[uuid.UUID | str] = sa.Column(  # type: ignore
-        'user_id',
-        sa.UUID(as_uuid=True),
         sa.ForeignKey('user.id'),
         nullable=False,
         index=True,
         doc='Идентификатор пользователя (UUID)',
+    )
+    user: orm.Mapped[User] = orm.relationship(  # type: ignore
+        User,
+        foreign_keys=[user_id],
+        doc='User',
     )

@@ -8,7 +8,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from bot.database.connection import SessionManager
 from bot.markups import cancel_markup, notify_markup
-from bot.utils.event_utils.database import EventStatus
+from bot.schemas.event import event_schemas
 from bot.utils.event_utils.service import set_finish_status
 
 
@@ -80,7 +80,7 @@ async def complete(callback: types.CallbackQuery, callback_data: notify_markup.N
         raise RuntimeError('No message text')
 
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
-        await set_finish_status(session, callback_data.event_id, EventStatus.COMPLETED)
+        await set_finish_status(session, callback_data.event_id, event_schemas.EventStatus.COMPLETED)
 
     await callback.message.edit_text('Событие выполнено.\n\n' + callback.message.text)
     await callback.answer()
@@ -96,7 +96,7 @@ async def not_complete(callback: types.CallbackQuery, callback_data: notify_mark
         raise RuntimeError('No message text')
 
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
-        await set_finish_status(session, callback_data.event_id, EventStatus.NOT_COMPLETED)
+        await set_finish_status(session, callback_data.event_id, event_schemas.EventStatus.NOT_COMPLETED)
 
     await callback.message.edit_text('Событие не сделано.\n\n' + callback.message.text)
     await callback.answer()
@@ -112,7 +112,7 @@ async def delete(callback: types.CallbackQuery, callback_data: notify_markup.Not
         raise RuntimeError('No message text')
 
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
-        await set_finish_status(session, callback_data.event_id, EventStatus.DELETED)
+        await set_finish_status(session, callback_data.event_id, event_schemas.EventStatus.DELETED)
 
     await callback.message.edit_text('Событие удалено.\n\n' + callback.message.text)
     await callback.answer()

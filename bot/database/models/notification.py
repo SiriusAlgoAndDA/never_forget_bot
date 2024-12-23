@@ -5,18 +5,22 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 
 from .base import BaseModel
+from .event import Event
 
 
 class Notification(BaseModel):
     __tablename__ = 'notification'
 
     event_id: orm.Mapped[uuid.UUID | str] = sa.Column(  # type: ignore
-        'event_id',
-        sa.UUID(as_uuid=True),
-        sa.ForeignKey('event.id'),
+        sa.ForeignKey(Event.id),
         nullable=False,
         index=True,
-        doc="ID event'а",
+        doc='Event id',
+    )
+    event: orm.Mapped[Event] = orm.relationship(  # type: ignore
+        Event,
+        foreign_keys=[event_id],
+        doc='Event',
     )
 
     notify_ts: orm.Mapped[datetime.datetime] = sa.Column(

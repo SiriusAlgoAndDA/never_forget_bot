@@ -1,11 +1,11 @@
 import uuid
 from datetime import datetime, timedelta
-from enum import StrEnum
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database import models
+from bot.schemas.event import event_schemas
 
 
 async def get_event(session: AsyncSession, event_id: uuid.UUID | str) -> models.Event | None:
@@ -26,7 +26,7 @@ async def add_event(  # pylint: disable=too-many-arguments
     name: str,
     time: datetime,
     user_id: uuid.UUID | str,
-    status: str = 'pending',
+    status: str = event_schemas.EventStatus.PENDING,
     reschedule_timedelta: timedelta = timedelta(minutes=10),
 ) -> models.Event:
     """
@@ -57,14 +57,9 @@ async def add_event(  # pylint: disable=too-many-arguments
     return new_event
 
 
-class EventStatus(StrEnum):
-    PENDING = 'pending'
-    COMPLETED = 'completed'
-    DELETED = 'deleted'
-    NOT_COMPLETED = 'not_completed'
-
-
-async def update_event_status(session: AsyncSession, event_id: uuid.UUID | str, new_status: str) -> models.Event | None:
+async def update_event_status(
+    session: AsyncSession, event_id: uuid.UUID | str, new_status: event_schemas.EventStatus | str
+) -> models.Event | None:
     """
     Обновить статус события (Event) по его ID.
 
