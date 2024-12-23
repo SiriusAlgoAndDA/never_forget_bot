@@ -5,7 +5,7 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-class NotifyKeyboardData(callback_data.CallbackData, prefix='event_processing'):
+class NotifyKeyboardData(callback_data.CallbackData, prefix='event'):
     action: str
     event_id: str
     delay_time: str | None = None

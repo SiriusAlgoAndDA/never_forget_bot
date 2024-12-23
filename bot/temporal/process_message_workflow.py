@@ -10,6 +10,7 @@ from temporalio import activity, workflow
 
 from bot import config
 from bot.database.connection import SessionManager
+from bot.markups import notify_markup
 from bot.schemas.notify_workflow import notify_workflow_schemas
 from bot.schemas.process_message_workflow import process_message_workflow_schemas
 from bot.utils import event_utils, notification_utils, user_utils
@@ -109,10 +110,7 @@ async def send_notify_info(data: notify_workflow_schemas.NotifyData) -> None:
     # TODO as is warning
     # TODO user timezone
     text = f'Напомним о событии\n"{event.name}"\nв {notification.notify_ts.isoformat()}'
-    await bot.send_message(
-        chat_id=user.tg_id,
-        text=text,
-    )
+    await bot.send_message(chat_id=user.tg_id, text=text, reply_markup=notify_markup.get_keyboard(event_id=event.id))
 
 
 @workflow.defn(name='process-message-workflow', sandboxed=False)

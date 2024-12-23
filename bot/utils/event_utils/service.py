@@ -3,10 +3,18 @@ import uuid
 
 import loguru
 import temporalio.client
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database import models
+from bot.database.connection import SessionManager
 from bot.schemas.process_message_workflow import process_message_workflow_schemas
+from bot.utils.event_utils.database import update_event_status
 from bot.utils.gpt import yandex_gpt
+from bot.utils.notification_utils.database import (
+    NotificationStatus,
+    get_active_notification_by_event_id,
+    update_notification_status,
+)
 
 
 async def process_message(text: str, user: models.User, iam_token: str | None = None) -> None:
@@ -28,3 +36,11 @@ async def process_message(text: str, user: models.User, iam_token: str | None = 
         task_queue='reminder-workflow-task-queue',
     )
     loguru.logger.info('Workflow {} started', workflow_id)
+
+
+async def set_finish_status(session: AsyncSession, event_id: uuid.UUID | str, status: str) -> None:
+    async with SessionManager().create_async_session(expire_on_commit=False) as session:
+        await update_event_status(session, event_id, status)
+        notifications = await get_active_notification_by_event_id(session, event_id)
+        for notify in notifications:
+            await update_notification_status(session, notify.id, NotificationStatus.CANCELLED)

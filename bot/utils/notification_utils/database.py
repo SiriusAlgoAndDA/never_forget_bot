@@ -1,8 +1,9 @@
+import typing
 import uuid
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database import models
@@ -27,25 +28,17 @@ async def get_notification(session: AsyncSession, notification_id: uuid.UUID | s
     return await session.scalar(query)
 
 
-async def update_notification_status(
-    session: AsyncSession, notification_id: uuid.UUID | str, new_status: str
-) -> models.Notification | None:
+async def update_notification_status(session: AsyncSession, notification_id: uuid.UUID | str, new_status: str) -> None:
     """
     Обновить статус уведомления (Notification) по ID.
 
     :param session: SQLAlchemy Async сессия.
     :param notification_id: UUID уведомления.
     :param new_status: Новый статус уведомления.
-    :return: Обновлённый объект Notification, если найден, или None.
+    :return: None.
     """
-    notification = await get_notification(session, notification_id)
-    if not notification:
-        return None
-
-    notification.status = new_status
-    await session.flush()
-    await session.refresh(notification)
-    return notification
+    query = update(models.Notification).where(models.Notification.id == notification_id).values(status=new_status)
+    await session.execute(query)
 
 
 async def add_notification(  # pylint: disable=too-many-arguments
@@ -81,9 +74,7 @@ async def add_notification(  # pylint: disable=too-many-arguments
     return new_notification
 
 
-async def update_sent_ts(
-    session: AsyncSession, notification_id: uuid.UUID | str, new_sent_ts: datetime
-) -> models.Notification | None:
+async def update_sent_ts(session: AsyncSession, notification_id: uuid.UUID | str, new_sent_ts: datetime) -> None:
     """
     Обновить статус уведомления (Notification) по ID.
 
@@ -95,8 +86,23 @@ async def update_sent_ts(
     notification = await get_notification(session, notification_id)
     if not notification:
         return None
+    query = update(models.Notification).where(models.Notification.id == notification_id).values(sent_ts=new_sent_ts)
+    await session.execute(query)
 
-    notification.sent_ts = new_sent_ts
-    await session.flush()
-    await session.refresh(notification)
-    return notification
+
+async def get_active_notification_by_event_id(
+    session: AsyncSession, event_id: uuid.UUID | str
+) -> typing.Sequence[models.Notification]:
+    """
+    Получить все активные события (Notification) по ID события.
+
+    :param session: SQLAlchemy Async сессия.
+    :param event_id: UUID события.
+    :return: Список с Notification, если найден, или [].
+    """
+    query = (
+        select(models.Notification)
+        .where(models.Notification.event_id == event_id)
+        .where(models.Notification.status == NotificationStatus.PENDING)
+    )
+    return (await session.execute(query)).scalars().all()

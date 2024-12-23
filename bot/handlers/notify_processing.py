@@ -6,7 +6,10 @@ from aiogram import F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
+from bot.database.connection import SessionManager
 from bot.markups import cancel_markup, notify_markup
+from bot.utils.event_utils.database import EventStatus
+from bot.utils.event_utils.service import set_finish_status
 
 
 router = aiogram.Router()
@@ -76,9 +79,8 @@ async def complete(callback: types.CallbackQuery, callback_data: notify_markup.N
     if not callback.message.text:
         raise RuntimeError('No message text')
 
-    # TODO cancel workflow
-
-    # TODO set completed status in db
+    async with SessionManager().create_async_session(expire_on_commit=False) as session:
+        await set_finish_status(session, callback_data.event_id, EventStatus.COMPLETED)
 
     await callback.message.edit_text('Событие выполнено.\n\n' + callback.message.text)
     await callback.answer()
@@ -93,9 +95,8 @@ async def not_complete(callback: types.CallbackQuery, callback_data: notify_mark
     if not callback.message.text:
         raise RuntimeError('No message text')
 
-    # TODO cancel workflow
-
-    # TODO set not_completed status in db
+    async with SessionManager().create_async_session(expire_on_commit=False) as session:
+        await set_finish_status(session, callback_data.event_id, EventStatus.NOT_COMPLETED)
 
     await callback.message.edit_text('Событие не сделано.\n\n' + callback.message.text)
     await callback.answer()
@@ -110,9 +111,8 @@ async def delete(callback: types.CallbackQuery, callback_data: notify_markup.Not
     if not callback.message.text:
         raise RuntimeError('No message text')
 
-    # TODO cancel workflow
-
-    # TODO set deleted status in db
+    async with SessionManager().create_async_session(expire_on_commit=False) as session:
+        await set_finish_status(session, callback_data.event_id, EventStatus.DELETED)
 
     await callback.message.edit_text('Событие удалено.\n\n' + callback.message.text)
     await callback.answer()
