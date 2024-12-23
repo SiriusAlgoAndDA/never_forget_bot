@@ -14,6 +14,7 @@ class NotifyDataSent:
 
 
 @dataclasses.dataclass
-class NotifyDataWithAsIs:
+class NotifyDataForCreated:
     notify_id: uuid.UUID | str
     as_is: bool
+    message_id: int

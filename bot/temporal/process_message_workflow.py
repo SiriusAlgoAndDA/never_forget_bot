@@ -94,7 +94,7 @@ async def add_event_process(
 
 
 @activity.defn
-async def send_notify_info(data: notify_workflow_schemas.NotifyDataWithAsIs) -> None:
+async def send_notify_info(data: notify_workflow_schemas.NotifyDataForCreated) -> None:
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
         notification = await notification_utils.get_notification(session, data.notify_id)
         if notification is None:
@@ -118,7 +118,12 @@ async def send_notify_info(data: notify_workflow_schemas.NotifyDataWithAsIs) -> 
         next_notify_time=notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
     )
 
-    await bot.send_message(chat_id=user.tg_id, text=text, reply_markup=notify_markup.get_keyboard(event_id=event.id))
+    await bot.edit_message_text(
+        chat_id=user.tg_id,
+        message_id=data.message_id,
+        text=text,
+        reply_markup=notify_markup.get_keyboard(event_id=event.id),
+    )
 
 
 @workflow.defn(name='process-message-workflow', sandboxed=False)
@@ -145,8 +150,8 @@ class ProcessMessageWorkflow:
         )
         loguru.logger.info('add_new_workflow_result: {}', add_new_workflow_result)
 
-        send_notify_info_data = notify_workflow_schemas.NotifyDataWithAsIs(
-            notify_id=add_event_process_result.notify_id, as_is=data.gpt_json['as_is']
+        send_notify_info_data = notify_workflow_schemas.NotifyDataForCreated(
+            notify_id=add_event_process_result.notify_id, as_is=data.gpt_json['as_is'], message_id=data.message_id
         )
         await workflow.execute_activity(
             send_notify_info, send_notify_info_data, start_to_close_timeout=timedelta(seconds=30)

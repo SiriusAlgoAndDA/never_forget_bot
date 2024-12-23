@@ -27,9 +27,8 @@ async def voice_message(message: types.Message, user: models.User) -> None:
         raise RuntimeError('Failed to get file object')
     iam_token = await yandex_utils.get_iam_token()
 
-    await message.reply('Распознаем аудио...')
+    main_message = await message.reply('Распознаем аудио...')
     text = await yandex_stt.speech_request(file_object, iam_token=iam_token)
-
-    await message.reply('Парсим текст...')
-    await event_utils.process_message(text=text, user=user, iam_token=iam_token)
-    await message.reply('Сообщение отправлено в обработку...')
+    await main_message.edit_text(text='Парсим текст...')
+    await event_utils.process_message(text=text, user=user, message_id=main_message.message_id, iam_token=iam_token)
+    await main_message.edit_text('Сообщение отправлено в обработку...')

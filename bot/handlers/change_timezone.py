@@ -11,7 +11,6 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from bot.database import models
 from bot.database.connection import SessionManager
-from bot.markups import cancel_markup
 from bot.middlewares.check_user import CheckUserMiddleware
 from bot.text import text_data
 from bot.utils.user_utils import change_timezone
@@ -29,13 +28,11 @@ router.message.middleware(CheckUserMiddleware())
 async def change_timezone_tg(message: types.Message, user: models.User, state: FSMContext) -> None:
     builder = ReplyKeyboardBuilder()
     builder.row(types.KeyboardButton(text='Определить по геолокации', request_location=True))
+    builder.row(types.KeyboardButton(text='Отмена'))
     await message.reply(
-        f'Текущий часовой пояс: {user.timezone}',
+        f'Текущий часовой пояс: {user.timezone}\n'
+        f'Пришлите новый часовой пояс относительно UTC (целую и дробную части таймзоны следует разделять точкой)',
         reply_markup=builder.as_markup(one_time_keyboard=True),
-    )
-    await message.reply(
-        'Пришлите новый часовой пояс относительно UTC (целую и дробную части таймзоны следует разделять точкой)',
-        reply_markup=cancel_markup.get_keyboard(),
     )
     await state.set_state(ChoosingTimezone.choosing_timezone)
 
@@ -44,6 +41,10 @@ async def change_timezone_tg(message: types.Message, user: models.User, state: F
 async def set_timezone(message: types.Message, state: FSMContext) -> None:
     if not message.text or not message.from_user:
         raise RuntimeError('No text or user')
+    if message.text == 'Отмена':
+        await state.clear()
+        await message.reply('Изменение таймзоны отменено', reply_markup=types.ReplyKeyboardRemove())
+        return
     try:
         new_timezone = float(message.text)
     except ValueError:

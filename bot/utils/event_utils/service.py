@@ -17,7 +17,7 @@ from bot.utils.notification_utils.database import (
 )
 
 
-async def process_message(text: str, user: models.User, iam_token: str | None = None) -> None:
+async def process_message(text: str, user: models.User, message_id: int, iam_token: str | None = None) -> None:
     gpt_data = await yandex_gpt.request_to_gpt(text, user, iam_token=iam_token)
     json_result = None
     try:
@@ -30,7 +30,7 @@ async def process_message(text: str, user: models.User, iam_token: str | None = 
     await client.start_workflow(
         'process-message-workflow',
         process_message_workflow_schemas.MessageInfo(
-            gpt_json=json_result, message_text=text, user_id=user.id, user_tz=user.timezone
+            gpt_json=json_result, message_text=text, user_id=user.id, user_tz=user.timezone, message_id=message_id
         ),
         id=workflow_id,
         task_queue='reminder-workflow-task-queue',

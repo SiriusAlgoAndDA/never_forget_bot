@@ -9,6 +9,7 @@ class MessageInfo:
     message_text: str
     user_id: uuid.UUID | str
     user_tz: float
+    message_id: int
 
 
 @dataclasses.dataclass
