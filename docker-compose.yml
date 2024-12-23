@@ -160,33 +160,37 @@ services:
     volumes:
       - /var/lib/elasticsearch/data
 
-  postgresql:
+  temporal-postgresql:
     container_name: temporal-postgresql
     env_file:
       - .temporal.env
+    environment:
+      PGDATA: "/var/lib/postgresql/data/pgdata"
     image: postgres:13
     networks:
       - temporal-network
-    ports:
-      - 5433:5432
-    expose:
-      - 5433
     volumes:
-      - /var/lib/postgresql/data
+        - temporal-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    deploy:
+        resources:
+            limits:
+                cpus: '1'
+                memory: 4G
 
   temporal:
     container_name: temporal
     env_file:
       - .temporal.env
     depends_on:
-      - postgresql
+      - temporal-postgresql
       - elasticsearch
     environment:
       - DB=postgres12
       - ENABLE_ES=true
       - ES_SEEDS=elasticsearch
       - DB_PORT=5432
-      - POSTGRES_SEEDS=postgresql
+      - POSTGRES_SEEDS=temporal-postgresql
       - ES_VERSION=v7
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
     image: temporalio/auto-setup:1.25.2
@@ -237,3 +241,4 @@ networks:
 
 volumes:
   db-data:
+  temporal-db-data:
