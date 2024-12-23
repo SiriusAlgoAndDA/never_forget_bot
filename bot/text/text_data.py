@@ -6,7 +6,7 @@ class TextData(str, Enum):
 
     EVENT_CREATED = '✅ Событие успешно создано!'
     EVENT_INFO = """
-✨ Событие: {name.capitalize()}
+✨ Событие: {name}
 ⏳ Время события: {event_time}
 📨 Следующее напоминание: {next_notify_time}
 """.strip()
@@ -16,7 +16,7 @@ class TextData(str, Enum):
     MSG_EVENT_CREATED_AS_IS = EVENT_CREATED_AS_IS + '\n\n' + EVENT_INFO
     MSG_NOTIFY = """🔔 Напоминание! 🔔
 
-📢 Событие: {name.capitalize()}
+📢 Событие: {name}
 📅 Время события: {event_time}
 📨 Следующее напоминание: {next_notify_time}
 """.strip()

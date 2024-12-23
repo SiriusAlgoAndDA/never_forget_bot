@@ -113,7 +113,7 @@ async def send_notify_info(data: notify_workflow_schemas.NotifyDataForCreated) -
 
     text: str = text_data.TextData.MSG_EVENT_CREATED_AS_IS if data.as_is else text_data.TextData.MSG_EVENT_CREATED
     text = text.format(
-        name=event.name,
+        name=event.name.capitalize(),
         event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
         next_notify_time=notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
     )

@@ -31,7 +31,7 @@ async def upcoming_events(message: types.Message, user: models.User, state: FSMC
         next_notify_ts = row[3].astimezone(tz=datetime.timezone(datetime.timedelta(hours=user.timezone)))
 
         text = text_data.TextData.EVENT_INFO.format(
-            name=row[1],
+            name=row[1].capitalize(),
             event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
             next_notify_time=next_notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
         )

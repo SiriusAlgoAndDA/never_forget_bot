@@ -49,7 +49,7 @@ async def send_notify(data: notify_workflow_schemas.NotifyData) -> str | notify_
 
         text: str = text_data.TextData.MSG_NOTIFY
         text = text.format(
-            name=event.name,
+            name=event.name.capitalize(),
             event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
             next_notify_time=next_notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
         )
