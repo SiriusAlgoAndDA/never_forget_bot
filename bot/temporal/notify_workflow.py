@@ -8,10 +8,11 @@ from temporalio.client import Client
 
 from bot import config
 from bot.database.connection import SessionManager
+from bot.markups import notify_markup
 from bot.schemas.notify_workflow import notify_workflow_schemas
 from bot.utils import user_utils
 from bot.utils.common.datetime_utils import utcnow
-from bot.utils.event_utils import get_event
+from bot.utils.event_utils import EventStatus, get_event
 from bot.utils.notification_utils import (
     NotificationStatus,
     add_notification,
@@ -31,14 +32,23 @@ async def send_notify(data: notify_workflow_schemas.NotifyData) -> str | notify_
         notify = await get_notification(session, data.notify_id)
         if notify is None:
             return 'Notification is None'
+        if notify.status != NotificationStatus.PENDING:
+            return 'Notification Status is not pending'
         event = await get_event(session, notify.event_id)
         if event is None:
             return 'Event is None'
+        if event.status != EventStatus.PENDING:
+            await update_notification_status(session, notify.id, NotificationStatus.CANCELLED)
+            return 'Event is closed'
         user = await user_utils.get_user_by_id(session, event.user_id)
         if user is None:
             return 'User is None'
         msg = await bot.send_message(
-            chat_id=user.tg_id, text=event.name, disable_web_page_preview=False, parse_mode=None
+            chat_id=user.tg_id,
+            text=event.name,
+            disable_web_page_preview=False,
+            parse_mode=None,
+            reply_markup=notify_markup.get_keyboard(event_id=event.id),
         )
         return notify_workflow_schemas.NotifyDataSent(notify.id, msg.date.isoformat())
 
@@ -46,8 +56,9 @@ async def send_notify(data: notify_workflow_schemas.NotifyData) -> str | notify_
 @activity.defn
 async def update_db(data: notify_workflow_schemas.NotifyDataSent) -> str | notify_workflow_schemas.NotifyData:
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
-        notify = await update_notification_status(session, data.notify_id, NotificationStatus.SENT)
-        notify = await update_sent_ts(session, data.notify_id, datetime.fromisoformat(data.sent_ts))
+        await update_notification_status(session, data.notify_id, NotificationStatus.SENT)
+        await update_sent_ts(session, data.notify_id, datetime.fromisoformat(data.sent_ts))
+        notify = await get_notification(session, data.notify_id)
         if notify is None:
             return 'Notification is None'
         event = await get_event(session, notify.event_id)
