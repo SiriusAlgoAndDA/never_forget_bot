@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import aiogram
-import pytz
+import dateutil.tz
 import timezonefinder
 from aiogram import F, types
 from aiogram.filters import Command, StateFilter
@@ -13,6 +13,7 @@ from bot.database import models
 from bot.database.connection import SessionManager
 from bot.markups import cancel_markup
 from bot.middlewares.check_user import CheckUserMiddleware
+from bot.text import text_data
 from bot.utils.user_utils import change_timezone
 
 
@@ -67,16 +68,18 @@ async def set_location_timezone(message: types.Message, state: FSMContext) -> No
     length = message.location.longitude
     loc = timezonefinder.TimezoneFinder().timezone_at(lat=width, lng=length)
     if loc is None:
-        await message.reply('Не удалось определить ваш часовой пояс по геолокации. Попробуйте ввести таймзону вручную')
+        await message.reply(text_data.TextData.MSG_TIMEZONE_LOC_ERROR)
         return
-    new_timezone = pytz.timezone(loc)
-    time_now = new_timezone.localize(datetime.now())
-    offset = time_now.utcoffset().total_seconds() / 3600  # type: ignore[union-attr]
+    new_timezone = dateutil.tz.gettz(loc)
+    if new_timezone is None:
+        await message.reply(text_data.TextData.MSG_TIMEZONE_LOC_ERROR)
+        return
+    offset = new_timezone.utcoffset(datetime.now()).total_seconds() / 3600  # type: ignore[union-attr]
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
         if not message.from_user:
             raise RuntimeError('No user id')
         await change_timezone(session, str(message.from_user.id), float(offset))
     await state.clear()
     await message.reply(
-        f'Таймзона успешно обновлена. Текущий часовой пояс: {float(offset)}', reply_markup=types.ReplyKeyboardRemove()
+        text_data.TextData.MSG_TIMEZONE_CHANGE_OK.format(offset=float(offset)), reply_markup=types.ReplyKeyboardRemove()
     )

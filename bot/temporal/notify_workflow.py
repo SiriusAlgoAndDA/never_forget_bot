@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import aiogram
 import loguru
@@ -10,7 +10,9 @@ from bot import config
 from bot.database.connection import SessionManager
 from bot.markups import notify_markup
 from bot.schemas.notify_workflow import notify_workflow_schemas
+from bot.text import text_data
 from bot.utils import user_utils
+from bot.utils.common import datetime_utils
 from bot.utils.common.datetime_utils import utcnow
 from bot.utils.event_utils import EventStatus, get_event
 from bot.utils.notification_utils import (
@@ -43,9 +45,22 @@ async def send_notify(data: notify_workflow_schemas.NotifyData) -> str | notify_
         user = await user_utils.get_user_by_id(session, event.user_id)
         if user is None:
             return 'User is None'
+
+        event_ts = event.time.astimezone(tz=timezone(timedelta(hours=user.timezone)))
+        next_notify_ts = (datetime_utils.utcnow() + event.reschedule_timedelta).astimezone(
+            tz=timezone(timedelta(hours=user.timezone))
+        )
+
+        text: str = text_data.TextData.MSG_NOTIFY
+        text = text.format(
+            name=event.name,
+            event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
+            next_notify_time=next_notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
+        )
+
         msg = await bot.send_message(
             chat_id=user.tg_id,
-            text=event.name,
+            text=text,
             disable_web_page_preview=False,
             parse_mode=None,
             reply_markup=notify_markup.get_keyboard(event_id=event.id),

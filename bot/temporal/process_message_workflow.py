@@ -17,6 +17,7 @@ from bot.utils import event_utils, notification_utils, user_utils
 from bot.utils.event_utils import add_event
 from bot.utils.notification_utils import add_notification
 
+from ..text import text_data
 from .notify_workflow import add_new_workflow
 
 
@@ -61,7 +62,7 @@ def validate_json(info: process_message_workflow_schemas.MessageInfo) -> dict[st
     return data
 
 
-def AsIsJson(info: process_message_workflow_schemas.MessageInfo) -> dict[str, typing.Any]:
+def as_is_json(info: process_message_workflow_schemas.MessageInfo) -> dict[str, typing.Any]:
     data = {
         'event': info.message_text,
         'date_of_event': (datetime.now(timezone(timedelta(hours=info.user_tz))) + timedelta(hours=1)).isoformat(),
@@ -93,7 +94,7 @@ async def add_event_process(
 
 
 @activity.defn
-async def send_notify_info(data: notify_workflow_schemas.NotifyData) -> None:
+async def send_notify_info(data: notify_workflow_schemas.NotifyDataWithAsIs) -> None:
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
         notification = await notification_utils.get_notification(session, data.notify_id)
         if notification is None:
@@ -107,9 +108,16 @@ async def send_notify_info(data: notify_workflow_schemas.NotifyData) -> None:
     settings = config.get_settings()
     bot = aiogram.Bot(token=settings.TG_BOT_TOKEN.get_secret_value())
 
-    # TODO as is warning
-    # TODO user timezone
-    text = f'Напомним о событии\n"{event.name}"\nв {notification.notify_ts.isoformat()}'
+    event_ts = event.time.astimezone(tz=timezone(timedelta(hours=user.timezone)))
+    notify_ts = notification.notify_ts.astimezone(tz=timezone(timedelta(hours=user.timezone)))
+
+    text: str = text_data.TextData.MSG_EVENT_CREATED_AS_IS if data.as_is else text_data.TextData.MSG_EVENT_CREATED
+    text = text.format(
+        name=event.name,
+        event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
+        next_notify_time=notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
+    )
+
     await bot.send_message(chat_id=user.tg_id, text=text, reply_markup=notify_markup.get_keyboard(event_id=event.id))
 
 
@@ -120,7 +128,7 @@ class ProcessMessageWorkflow:
         gpt_json = validate_json(data)
         loguru.logger.info('GPT JSON: {}', gpt_json)
         if not gpt_json:
-            data.gpt_json = AsIsJson(data)
+            data.gpt_json = as_is_json(data)
         else:
             data.gpt_json = gpt_json
         loguru.logger.info('Validated JSON: {}', data)
@@ -137,7 +145,10 @@ class ProcessMessageWorkflow:
         )
         loguru.logger.info('add_new_workflow_result: {}', add_new_workflow_result)
 
+        send_notify_info_data = notify_workflow_schemas.NotifyDataWithAsIs(
+            notify_id=add_event_process_result.notify_id, as_is=data.gpt_json['as_is']
+        )
         await workflow.execute_activity(
-            send_notify_info, add_event_process_result, start_to_close_timeout=timedelta(seconds=30)
+            send_notify_info, send_notify_info_data, start_to_close_timeout=timedelta(seconds=30)
         )
         loguru.logger.info('send_notify_info_result')

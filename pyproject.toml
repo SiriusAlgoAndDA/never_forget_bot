@@ -22,7 +22,6 @@ temporalio = "^1.8.0"
 pyjwt = "^2.10.1"
 cryptography = "^44.0.0"
 timezonefinder = "^6.5.7"
-pytz = "^2024.2"
 pytimeparse = "^1.1.8"
 
 [tool.poetry.group.dev.dependencies]
