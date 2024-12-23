@@ -8,6 +8,7 @@ from bot import config, logger_config
 
 from .notify_workflow import NotificationWorkflow, add_new_workflow, send_notify, update_db
 from .process_message_workflow import ProcessMessageWorkflow, add_event_process, send_notify_info
+from .set_delay_workflow import ProcessDelayWorkflow, new_notify_process, send_update_info
 
 
 async def main() -> None:
@@ -21,8 +22,16 @@ async def main() -> None:
     async with Worker(
         client,
         task_queue='reminder-workflow-task-queue',
-        workflows=[NotificationWorkflow, ProcessMessageWorkflow],
-        activities=[send_notify, update_db, add_new_workflow, add_event_process, send_notify_info],
+        workflows=[NotificationWorkflow, ProcessMessageWorkflow, ProcessDelayWorkflow],
+        activities=[
+            send_notify,
+            update_db,
+            add_new_workflow,
+            add_event_process,
+            send_notify_info,
+            new_notify_process,
+            send_update_info,
+        ],
     ):
         loguru.logger.info('Worker запущен и ожидает задачи...')
         # Чтобы worker не останавливался
