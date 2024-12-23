@@ -33,7 +33,7 @@ async def get_bot(set_up_logger: bool = True) -> tuple[aiogram.Bot, aiogram.Disp
         commands=[
             types.BotCommand(command='/start', description='Начать'),
             types.BotCommand(command='/change_timezone', description='Поменять часовой пояс'),
-            types.BotCommand(command='/show_events', description='Показать ближайшие события'),
+            types.BotCommand(command='/upcoming_events', description='Показать ближайшие события'),
         ]
     )
 
