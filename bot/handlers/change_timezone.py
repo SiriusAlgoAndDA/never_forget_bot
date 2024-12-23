@@ -32,7 +32,7 @@ async def change_timezone_tg(message: types.Message, user: models.User, state: F
     await message.reply(
         f'Текущий часовой пояс: {user.timezone}\n'
         f'Пришлите новый часовой пояс относительно UTC (целую и дробную части таймзоны следует разделять точкой)',
-        reply_markup=builder.as_markup(one_time_keyboard=True),
+        reply_markup=builder.as_markup(one_time_keyboard=True, resize_keyboard=True),
     )
     await state.set_state(ChoosingTimezone.choosing_timezone)
 
