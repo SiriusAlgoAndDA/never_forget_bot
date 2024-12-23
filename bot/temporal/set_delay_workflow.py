@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 import uuid
 from datetime import timedelta, timezone
 
@@ -38,7 +39,7 @@ async def new_notify_process(
         # Выполняем запрос
         last = await session.scalar(stmt)
         if last is None:
-            return
+            return notify_workflow_schemas.NotifyData(notify_id='')
         date_of_notify = last.notify_ts + timedelta(seconds=data.delta)
         notifications = await get_active_notification_by_event_id(session, data.event_id)
         for notify in notifications:
@@ -49,7 +50,7 @@ async def new_notify_process(
 
 
 @activity.defn
-async def send_update_info(data: notify_workflow_schemas.NotifyDataForCreated):
+async def send_update_info(data: notify_workflow_schemas.NotifyDataForCreated) -> None:
     async with SessionManager().create_async_session(expire_on_commit=False) as session:
         notification = await notification_utils.get_notification(session, data.notify_id)
         if notification is None:
@@ -84,20 +85,22 @@ class ProcessDelayWorkflow:
     @workflow.run
     async def run(self, data: SetDelayInfo) -> None:
         add_event_process_result: notify_workflow_schemas.NotifyData = await workflow.execute_activity(
-            new_notify_process, data, start_to_close_timeout=timedelta(seconds=30)
+            activity=new_notify_process, arg=data, start_to_close_timeout=timedelta(seconds=30)
         )
         loguru.logger.info('new_notify_process_result: {}', add_event_process_result)
+        if not add_event_process_result.notify_id:
+            return
 
         add_new_workflow_result = await workflow.execute_activity(
             add_new_workflow, add_event_process_result, start_to_close_timeout=timedelta(seconds=30)
         )
         loguru.logger.info('add_new_workflow_result: {}', add_new_workflow_result)
 
-        send_update_info_result = await workflow.execute_activity(
+        await workflow.execute_activity(
             send_update_info,
             notify_workflow_schemas.NotifyDataForCreated(
                 notify_id=add_event_process_result.notify_id, as_is=False, message_id=data.msg_id
             ),
             start_to_close_timeout=timedelta(seconds=30),
         )
-        loguru.logger.info('send_update_info_result: {}', send_update_info_result)
+        loguru.logger.info('send_update_info_result')

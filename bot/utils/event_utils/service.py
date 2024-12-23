@@ -51,7 +51,7 @@ async def set_delay(event_id: uuid.UUID | str, delta: timedelta, tg_id: int, msg
     client = await temporalio.client.Client.connect('temporal:7233')
     await client.start_workflow(
         'process-delay-workflow',
-        SetDelayInfo(str(event_id), delta.total_seconds(), msg_id, tg_id),
+        SetDelayInfo(str(event_id), int(delta.total_seconds()), msg_id, tg_id),
         id=workflow_id,
         task_queue='reminder-workflow-task-queue',
     )

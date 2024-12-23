@@ -58,6 +58,8 @@ async def delay_another(message: types.Message, state: FSMContext) -> None:
     delta = datetime.timedelta(seconds=seconds_delta)
     state_data = await state.get_data()
     event_id = state_data['event_id']
+    if not message.from_user:
+        raise RuntimeError('No from_user')
     await set_delay(event_id=event_id, delta=delta, tg_id=message.from_user.id, msg_id=state_data['msg_id'])
 
     await state.clear()
