@@ -15,15 +15,15 @@ def get_keyboard(event_id: str | uuid.UUID) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.button(
-        text='+10 min',
+        text='+10 минут',
         callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='10m'),
     )
     builder.button(
-        text='+1 hour',
+        text='+1 час',
         callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='1h'),
     )
     builder.button(
-        text='+1 day',
+        text='+1 день',
         callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='1d'),
     )
     builder.button(
