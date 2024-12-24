@@ -14,3 +14,12 @@ async def handler_start(message: types.Message, state: FSMContext) -> None:
     if message.from_user is None:
         raise RuntimeError('User is None')
     await message.reply(text_data.TextData.MSG_START, reply_markup=types.ReplyKeyboardRemove())
+
+
+@router.message(filters.Command('help'))
+async def handler_help(message: types.Message, state: FSMContext) -> None:
+    await state.clear()
+    if message.from_user is None:
+        raise RuntimeError('User is None')
+    await message.reply(text_data.TextData.MSG_HELP, reply_markup=types.ReplyKeyboardRemove())
+
