@@ -22,4 +22,3 @@ async def handler_help(message: types.Message, state: FSMContext) -> None:
     if message.from_user is None:
         raise RuntimeError('User is None')
     await message.reply(text_data.TextData.MSG_HELP, reply_markup=types.ReplyKeyboardRemove())
-
