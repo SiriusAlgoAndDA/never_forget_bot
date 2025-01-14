@@ -19,8 +19,20 @@ def get_keyboard(event_id: str | uuid.UUID) -> InlineKeyboardMarkup:
         callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='10m'),
     )
     builder.button(
+        text='+30 минут',
+        callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='30m'),
+    )
+    builder.button(
         text='+1 час',
         callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='1h'),
+    )
+    builder.button(
+        text='+3 часа',
+        callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='3h'),
+    )
+    builder.button(
+        text='+12 часов',
+        callback_data=NotifyKeyboardData(action='delay', event_id=str(event_id), delay_time='12h'),
     )
     builder.button(
         text='+1 день',
@@ -33,5 +45,5 @@ def get_keyboard(event_id: str | uuid.UUID) -> InlineKeyboardMarkup:
     builder.button(text='🚫Удалить', callback_data=NotifyKeyboardData(action='delete', event_id=str(event_id)))
     builder.button(text='❌Не сделано', callback_data=NotifyKeyboardData(action='not_complete', event_id=str(event_id)))
 
-    builder.adjust(3, 1, 1, 1, 1)
+    builder.adjust(3, 3, 1, 1, 1, 1)
     return builder.as_markup()

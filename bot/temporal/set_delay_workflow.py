@@ -67,15 +67,15 @@ async def send_update_info(data: notify_workflow_schemas.NotifyDataForCreated) -
     event_ts = event.time.astimezone(tz=timezone(timedelta(hours=user.timezone)))
     notify_ts = notification.notify_ts.astimezone(tz=timezone(timedelta(hours=user.timezone)))
 
-    text = text_data.TextData.EVENT_INFO.format(
+    text = text_data.TextData.MSG_NOTIFY.format(
         name=event.name,
         event_time=event_ts.strftime('%H:%M:%S %d.%m.%Y'),
         next_notify_time=notify_ts.strftime('%H:%M:%S %d.%m.%Y'),
     )
 
-    await bot.send_message(
+    await bot.edit_message_text(
         chat_id=user.tg_id,
-        reply_to_message_id=data.message_id,
+        message_id=data.message_id,
         text=text,
     )
 
