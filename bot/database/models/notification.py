@@ -1,3 +1,4 @@
+# pylint: disable=unsubscriptable-object  # TODO: SQLAlchemy 2.0 compatibility
 import datetime
 import uuid
 
