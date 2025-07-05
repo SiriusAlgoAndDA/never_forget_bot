@@ -12,5 +12,6 @@ class EventFactory(Factory):
 
     type = fuzzy.FuzzyText()
     name = fuzzy.FuzzyText()
+    status = fuzzy.FuzzyText()
     time = Faker('date_time')
     user_id = Faker('uuid4')

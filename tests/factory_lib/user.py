@@ -13,3 +13,4 @@ class UserFactory(Factory):
     tg_id = fuzzy.FuzzyText()
     tg_username = fuzzy.FuzzyText()
     tg_name = fuzzy.FuzzyText()
+    timezone = fuzzy.FuzzyFloat(0, 1)

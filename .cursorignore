@@ -1,0 +1,27 @@
+*.log
+local_settings.py
+db.sqlite3
+
+# Environments
+.env
+.temporal.env
+env/
+ENV/
+*.session
+
+# database
+*.db
+*.sql
+*.csv
+pgadmin/*
+pgdata/*
+db/*
+!db/README.md
+
+deploy/*
+!deploy/README.md
+
+logs/*
+!logs/README.md
+
+.yandex_cloud_private_key
